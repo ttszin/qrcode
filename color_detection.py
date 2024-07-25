@@ -59,8 +59,7 @@ def main():
         sensors.show()
         cv.imshow("Edges Yellow",edges_yellow)
         cv.imshow("Edges Red",edges_red)
-            
-        # Mostrar a imagem com as linhas detectadas (opcional)
+     
         key = cv.waitKey(25)
         if key == 27:
             break
