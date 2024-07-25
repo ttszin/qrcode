@@ -97,6 +97,7 @@ def distance_of_points(frame,xa,ya,xb,yb):
 
 def detect_rectangles(frame):        
     #Aplicando blur Gaussiano na imagem
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     blur = cv.GaussianBlur(frame, (5, 5), 0)
     
     #hsv = cv.cvtColor(blur, cv.COLOR_BGR2HSV)
@@ -111,7 +112,7 @@ def detect_rectangles(frame):
 
 
     #A máscara não é essenciail porém elas ajudam a ter certeza de que a imagem será filtrada com as cores certas da rua
-    mask = cv.inRange(blur, lower,upper)
+    #mask = cv.inRange(blur, lower,upper)
     
     #Aplicando as máscaras com base nos limiares
     
@@ -121,7 +122,7 @@ def detect_rectangles(frame):
     # mask = mask + mask2
     
     #Identificando as arestas presentes na imagem de acordo com as máscaras (Filtro de Canny)
-    edges = cv.Canny(mask, 75, 150)
+    edges = cv.Canny(blur, 75, 150)
     cv.imshow("Edges", edges)
     contours, _ = cv.findContours(edges, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     
@@ -146,6 +147,7 @@ def detect_rectangles(frame):
                 #rect_center_x = x + w // 2
                 #if abs(rect_center_x - center_x) < width * 0.2:  # Verifica se o retângulo está no centro
                 rectangles.append((x, y, w, h))
+                #for i in range(rectangles):
                 
                 #print(f"Altura = {h} / Largura = {w}")
     # cv.imshow("Edges", edges)
@@ -218,7 +220,7 @@ def calcular_angulo(vse,vid):
     return angulo_retangulo
 
 def main():
-    video = cv.VideoCapture(0)
+    video = cv.VideoCapture(2)
     sensors = Sensors()
     
 
@@ -240,7 +242,7 @@ def main():
 
         
         if not status:
-            video = cv.VideoCapture("test_video/street2.mp4")
+            video = cv.VideoCapture(2)
             continue
         
         #Definindo as coordenadas do frame central
