@@ -179,7 +179,6 @@ def calculating_box(approx):
     return box
 
 
-
 def pick_up_rectangles(rectangles):
     if not rectangles:
         return None, None
