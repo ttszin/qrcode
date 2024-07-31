@@ -118,7 +118,7 @@ def main(argv):
     edges_red = cv.Canny(mask_red,75,150)
 
     
-    contornos, _ = cv.findContours(edges_yellow, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    contornos, _ = cv.findContours(edges_red, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     
 
     # Coletar pontos dos contornos
@@ -139,18 +139,16 @@ def main(argv):
     print("Pontos ordenados:")
     print(sorted_points_np)
 
-    for i in range(len(sorted_points_np)):
-        
+    # for i in range(len(sorted_points_np)):
 
+    #     concatenated_contours = np.vstack(contornos)
 
-    # concatenated_contours = np.vstack(contornos)
+    #     # Ordenar os pontos
+    #     sorted_points = sorted(concatenated_contours, key=lambda point: (point[0][0], point[0][1]))
 
-    # Ordenar os pontos
-    # sorted_points = sorted(concatenated_contours, key=lambda point: (point[0][0], point[0][1]))
-
-    # Converter a lista de pontos ordenados de volta para um array numpy com np.vstack
-    # sorted_points_np = np.vstack(sorted_points)
-    # print(sorted_points_np)
+    #     # Converter a lista de pontos ordenados de volta para um array numpy com np.vstack
+    #     sorted_points_np = np.vstack(sorted_points)
+    #     print(sorted_points_np)
 
     ############################################################################################
 

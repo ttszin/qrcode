@@ -109,7 +109,7 @@ def hough(lines,edges,image,plot):
 
 def main():
     image = cv.imread('./images/red1.jpg')
-    video = cv.VideoCapture(2)
+    # video = cv.VideoCapture(2)
     
     while True:
         status,frame = video.read()
