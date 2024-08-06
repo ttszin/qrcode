@@ -85,97 +85,102 @@ def main(argv):
         print ('Usage:\nmorph_lines_detection.py < path_to_image >')
         return -1
 
-    image = cv.imread(argv[0])
-    copy = image.copy()
-
-    stretch_near = cv.resize(image, (1200, 720),  
-               interpolation = cv.INTER_NEAREST) 
-    
-    stretch_copy = cv.resize(copy, (780, 540),  
-               interpolation = cv.INTER_NEAREST)
-
-    # sobel(stretch_copy)
-
-    gray = cv.cvtColor(stretch_near, cv.COLOR_BGR2GRAY)
-    blur  = cv.GaussianBlur(gray, (5, 5), 0)
-    blur2 = cv.GaussianBlur(stretch_copy,(5,5),0)
-    
-    edges = cv.Canny(blur2,75,150)
-    
-    #Faz as máscaras vermelha e amarela
-    mask_yellow,mask_red = color_detection(stretch_copy)
-   
-    ############################################################################################
-    ######################################### AMARELO  #########################################
-    ############################################################################################
-
-    edges_yellow = cv.Canny(mask_yellow,75,150)
+    video = cv.VideoCapture(argv[0])
+    # image = cv.imread(argv[0])
 
 
-    ############################################################################################
-    #######################################  VERMELHO   ########################################
-    ############################################################################################
-    edges_red = cv.Canny(mask_red,75,150)
+    while True:
+        status,frame = video.read()
+        copy = frame.copy()
 
-    
-    contornos, _ = cv.findContours(edges_red, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    
-
-    # Coletar pontos dos contornos
-    points = []
-    for contour in contornos:
-        for point in contour:
-            points.append(point[0])
-
-    points = np.array(points)
-
-    # Ordenar os pontos por coordenada X e, em caso de empate, pela coordenada Y
-    sorted_points = sorted(points, key=lambda point: (point[0], point[1]))
-
-    # Converter a lista de pontos ordenados de volta para um array numpy com np.vstack
-    sorted_points_np = np.vstack(sorted_points)
-
-    # Exibir os pontos ordenados
-    print("Pontos ordenados:")
-    print(sorted_points_np)
-
-    # for i in range(len(sorted_points_np)):
-
-    #     concatenated_contours = np.vstack(contornos)
-
-    #     # Ordenar os pontos
-    #     sorted_points = sorted(concatenated_contours, key=lambda point: (point[0][0], point[0][1]))
-
-    #     # Converter a lista de pontos ordenados de volta para um array numpy com np.vstack
-    #     sorted_points_np = np.vstack(sorted_points)
-    #     print(sorted_points_np)
-
-    ############################################################################################
-
-    # pontos_ordenados = []
-
-    # distances = []
-    # pontos_ordenados.append(concatenated_contours[0])
-    # for i in range(len(concatenated_contours)):
-    #     for j in range(i+1,len(concatenated_contours)):
-    #         distance = np.linalg.norm(concatenated_contours[i] - concatenated_contours[j])
-    #         print(f"Ponto na posição {i} - Pontos na posição {j} = {distance}")
-    #         distances.append(distance)
-    #     #Pega o índice da distância mais próxima
-    #     mais_proximo = np.argmin(distances)
-    #     print(mais_proximo)
-    #     distances.clear()
+        stretch_near = cv.resize(frame, (1200, 720),  
+                interpolation = cv.INTER_NEAREST) 
         
-        # pontos_ordenados.append(concatenated_contours[mais_proximo])
+        stretch_copy = cv.resize(copy, (780, 540),  
+                interpolation = cv.INTER_NEAREST)
+
+        # sobel(stretch_copy)
+
+        gray = cv.cvtColor(stretch_near, cv.COLOR_BGR2GRAY)
+        blur  = cv.GaussianBlur(gray, (5, 5), 0)
+        blur2 = cv.GaussianBlur(stretch_copy,(5,5),0)
+        
+        edges = cv.Canny(blur2,75,150)
+        
+        #Faz as máscaras vermelha e amarela
+        mask_yellow,mask_red = color_detection(stretch_copy)
     
-    ############################################################################################
-    
-    # for contour in contornos:
-    #     a = 0.02 *cv.arcLength(contour,True)
-    #     approx = cv.approxPolyDP(contour,a,True)
-    #     print(approx)
-    #     if len(approx) == 15:
-    #         cv.drawContours(stretch_near,[approx],0,(0,255,0),2)
+        ############################################################################################
+        ######################################### AMARELO  #########################################
+        ############################################################################################
+
+        edges_yellow = cv.Canny(mask_yellow,75,150)
+
+
+        ############################################################################################
+        #######################################  VERMELHO   ########################################
+        ############################################################################################
+        edges_red = cv.Canny(mask_red,75,150)
+
+        
+        contornos, _ = cv.findContours(edges_red, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        
+
+        # Coletar pontos dos contornos
+        points = []
+        for contour in contornos:
+            for point in contour:
+                points.append(point[0])
+
+        points = np.array(points)
+
+        # Ordenar os pontos por coordenada X e, em caso de empate, pela coordenada Y
+        sorted_points = sorted(points, key=lambda point: (point[0], point[1]))
+
+        # Converter a lista de pontos ordenados de volta para um array numpy com np.vstack
+        sorted_points_np = np.vstack(sorted_points)
+
+        # Exibir os pontos ordenados
+        print("Pontos ordenados:")
+        print(sorted_points_np)
+
+        # for i in range(len(sorted_points_np)):
+
+        #     concatenated_contours = np.vstack(contornos)
+
+        #     # Ordenar os pontos
+        #     sorted_points = sorted(concatenated_contours, key=lambda point: (point[0][0], point[0][1]))
+
+        #     # Converter a lista de pontos ordenados de volta para um array numpy com np.vstack
+        #     sorted_points_np = np.vstack(sorted_points)
+        #     print(sorted_points_np)
+
+        ############################################################################################
+
+        # pontos_ordenados = []
+
+        # distances = []
+        # pontos_ordenados.append(concatenated_contours[0])
+        # for i in range(len(concatenated_contours)):
+        #     for j in range(i+1,len(concatenated_contours)):
+        #         distance = np.linalg.norm(concatenated_contours[i] - concatenated_contours[j])
+        #         print(f"Ponto na posição {i} - Pontos na posição {j} = {distance}")
+        #         distances.append(distance)
+        #     #Pega o índice da distância mais próxima
+        #     mais_proximo = np.argmin(distances)
+        #     print(mais_proximo)
+        #     distances.clear()
+            
+            # pontos_ordenados.append(concatenated_contours[mais_proximo])
+        
+        ############################################################################################
+        
+        # for contour in contornos:
+        #     a = 0.02 *cv.arcLength(contour,True)
+        #     approx = cv.approxPolyDP(contour,a,True)
+        #     print(approx)
+        #     if len(approx) == 15:
+        #         cv.drawContours(stretch_near,[approx],0,(0,255,0),2)
     
     cv.imshow("edges",edges)
 
