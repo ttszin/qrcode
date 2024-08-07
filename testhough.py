@@ -8,10 +8,19 @@ import cv2 as cv
 import numpy as np
 def main(argv):
     
-    default_file = './images/red1.jpg'
+    default_file = './imagens/red1.jpg'
     filename = argv[0] if len(argv) > 0 else default_file
     # Loads an image
     src = cv.imread(cv.samples.findFile(filename), cv.IMREAD_GRAYSCALE)
+
+    stretch_near = cv.resize(src, (1200, 720),  
+            interpolation = cv.INTER_NEAREST) 
+    
+
+    copy = stretch_near.copy()
+    stretch_copy = cv.resize(copy, (1200, 720),  
+            interpolation = cv.INTER_NEAREST)
+
     # Check if image is loaded fine
     if src is None:
         print ('Error opening image!')
@@ -19,7 +28,7 @@ def main(argv):
         return -1
     
     
-    dst = cv.Canny(src, 50, 200, None, 3)
+    dst = cv.Canny(stretch_copy, 50, 200, None, 3)
     
     # Copy edges to the images that will display the results in BGR
     cdst = cv.cvtColor(dst, cv.COLOR_GRAY2BGR)
@@ -47,7 +56,7 @@ def main(argv):
             l = linesP[i][0]
             cv.line(cdstP, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv.LINE_AA)
     
-    cv.imshow("Source", src)
+    cv.imshow("Source", stretch_near)
     cv.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst)
     cv.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP)
     

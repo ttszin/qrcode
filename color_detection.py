@@ -97,14 +97,14 @@ def hough(lines,edges,image,plot):
         if len(approx) == 1:  # Verifica se o contorno tem 4 vértices (retângulo)
             (x, y, w, h) = cv.boundingRect(approx)  #Pega x,y, altura e largura dos retângulos]
             cv.rectangle(plot, (x, y), (x + w, y + h), (0, 0, 255), 2)  
-    """        
-    linesP = cv.HoughLinesP(edges, 1, np.pi / 180, 50, None, 50, 10)
+   
+    linesP = cv.HoughLines(edges, 1, np.pi / 180, 50, None, 50, 10)
 
     if linesP is not None:
         for i in range(0, len(linesP)):
             l = linesP[i][0]
             cv.line(plot, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv.LINE_AA)
-    """
+   
     cv.imshow("Linhas detectadas",plot)
 
 def main():
@@ -117,24 +117,6 @@ def main():
 
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         blur  = cv.GaussianBlur(gray, (5, 5), 0)
-        
-
-        #mask_yellow,mask_red = color_detection(blur)
-        # Encontrar o maior segmento de linha
-        longest_line, length = find_longest_line(frame)
-
-        if longest_line is not None:
-            x1, y1, x2, y2 = longest_line
-            print(f'Maior segmento de linha: (({x1}, {y1}), ({x2}, {y2})) com comprimento {length:.2f}')
-
-            # Desenhar a linha na imagem original
-            color_image = cv.cvtColor(gray, cv.COLOR_GRAY2BGR)
-            cv.line(color_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-            # Mostrar a imagem
-            cv.imshow('Maior Linha', color_image)
-        else:
-            print('Nenhuma linha detectada.')
 
 
         cv.imshow("Imagem", frame)

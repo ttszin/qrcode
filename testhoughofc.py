@@ -1,120 +1,51 @@
-"""
-@file hough_lines.py
-@brief This program demonstrates line finding with the Hough transform
-"""
-import sys
-import math
-import cv2 as cv
+import cv2
 import numpy as np
 
-def detect_rectangles(frame):        
-    #Aplicando blur Gaussiano na imagem
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    blur = cv.GaussianBlur(gray, (5, 5), 0)
-    
-    #Identificando as arestas presentes na imagem de acordo com as máscaras (Filtro de Canny)
-    edges = cv.Canny(blur, 50, 200)
-    cv.imshow("Edges", edges)
-    contours, _ = cv.findContours(edges, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    
-    height, width = frame.shape[:2]
-    center_x = width // 2
-    max_width = 50  # Largura máxima dos retângulos
-    max_height = 50  # Altura máxima dos retângulos
-
-    rectangles = []
-        
-        
-    for contour in contours:
-        approx = cv.approxPolyDP(contour, 0.02 * cv.arcLength(contour, True), True)
-        
-        if len(approx) == 4:  # Verifica se o contorno tem 4 vértices (retângulo)
-            (x, y, w, h) = cv.boundingRect(approx)  #Pega x,y, altura e largura dos retângulos
-            #box = calculating_box(approx)
-
-            aspect_ratio = float(w) / h
-            # Verifica se o retângulo está no centro e se é pequeno
-            if 0.2 < aspect_ratio < 5.0 and w < max_width and h < max_height and h > w:
-                #rect_center_x = x + w // 2
-                #if abs(rect_center_x - center_x) < width * 0.2:  # Verifica se o retângulo está no centro
-                rectangles.append((x, y, w, h))
-                #for i in range(rectangles):
-                
-                #print(f"Altura = {h} / Largura = {w}")
-    # cv.imshow("Edges", edges)
-    
-    return rectangles
-
-def calculate_centers(rectangles):
-    centers = []
-    for x, y, w, h in rectangles:
-        center_x = x + w // 2
-        centers.append(center_x)
-        print(f"Centros:{centers}")
-    return centers
-
-def calculate_tam(rectangles):
-    tams = []
-    for x, y, w, h in rectangles:
-        altura = h
-        tams.append(altura)
-    return tams
-
-
-def filter_rectangles_by_center(rectangles, centers,tamanho):
-    if not centers:
-        return []
-
-    mean_center = np.mean(centers)
-    mean_height = np.mean(tamanho)
-
-    print(f"Média: {mean_center}")
-    tolerance = 0.02 * mean_center  # 10% of the mean center value
-    tolerance_height = 0.02 * mean_height
-    print(f"Tolerância: {tolerance}")
-
-    filtered_rectangles = []
-    for x, y, w, h in rectangles:
-        center_x = x + w // 2
-        if abs(center_x - mean_center) <= tolerance and abs(h-mean_height) <= tolerance_height:
-            filtered_rectangles.append((x, y, w, h))
-    
-    return filtered_rectangles
-
-
-######################################################################################################################################
-# Pegar os centros da rua, comparálos e fazer uma média, depois pegar os que tem o centro a 10% da média para ambos os lados e plotar
-######################################################################################################################################
 def main():
-    video = cv.VideoCapture(2)
-    # video = cv.VideoCapture(0)
-    all_rectangles = []
-    while True:
-        status,frame = video.read()
-        rectangles = detect_rectangles(frame)
-        
-        centers = calculate_centers(rectangles)
-        tamanhos = calculate_tam(rectangles)
-        filtered_rectangles = filter_rectangles_by_center(rectangles, centers,tamanhos)
-        
-        """
-        cr = set(filtered_rectangles)
-        ar = set(all_rectangles)
-        all_rectangles = ar ^ cr
-        """
-        if not status:
-            video = cv.VideoCapture(2)
-            # video = cv.VideoCapture(0)
-            continue
+    # Carrega a imagem
+    imagem = cv2.imread('./imagens/red1.jpg')
+    imagem_hsv = cv2.cvtColor(imagem, cv2.COLOR_BGR2HSV)
 
-        for x,y,w,h in all_rectangles:
-            cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)     #DESENHANDO O RETÂNGULO
+    # Detecta contornos na imagem em escala de cinza
+    imagem_cinza = cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
+    bordas = cv2.Canny(imagem_cinza, 100, 200)
+    contornos, hierarquia = cv2.findContours(bordas, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        cv.imshow("VIDEO",frame)
-        key = cv.waitKey(25)
-        if key == 27:
-            break
-        ## [exit]
+    # Identifica o objeto mais próximo com base no maior contorno (suposição: objeto maior está mais próximo)
+    contorno_maior = max(contornos, key=cv2.contourArea)
+
+    # Cria uma máscara em branco do mesmo tamanho da imagem
+    mascara_objeto = np.zeros_like(imagem_cinza)
+
+    # Desenha o contorno do maior objeto na máscara
+    cv2.drawContours(mascara_objeto, [contorno_maior], -1, 255, thickness=cv2.FILLED)
+
+    # Define os limites para a cor vermelha no espaço de cor HSV
+    limiar_inferior1 = np.array([0, 70, 50])
+    limiar_superior1 = np.array([10, 255, 255])
+
+    limiar_inferior2 = np.array([170, 70, 50])
+    limiar_superior2 = np.array([180, 255, 255])
+
+    # Segmenta a cor vermelha na imagem
+    mascara_vermelha1 = cv2.inRange(imagem_hsv, limiar_inferior1, limiar_superior1)
+    mascara_vermelha2 = cv2.inRange(imagem_hsv, limiar_inferior2, limiar_superior2)
+    mascara_vermelha = cv2.bitwise_or(mascara_vermelha1, mascara_vermelha2)
+
+    # Aplica a máscara do objeto mais próximo na máscara vermelha
+    mascara_final = cv2.bitwise_and(mascara_vermelha, mascara_objeto)
+
+    # Calcula a proporção de pixels vermelhos dentro da área do objeto
+    total_pixels = cv2.countNonZero(mascara_objeto)
+    pixels_vermelhos = cv2.countNonZero(mascara_final)
+    proporcao_vermelha = pixels_vermelhos / total_pixels if total_pixels > 0 else 0
+
+    # Exibe os resultados
+    print(f'Proporção de área vermelha no objeto mais próximo: {proporcao_vermelha:.2f}')
+
+    cv2.imshow('Área Vermelha no Objeto Mais Próximo', mascara_final)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
