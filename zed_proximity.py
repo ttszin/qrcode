@@ -23,6 +23,7 @@ def listener():
     rospy.init_node('point_cloud_listener', anonymous=True)
     rospy.Subscriber('/zed/point_cloud', PointCloud2, callback)
     rospy.spin()
+    print(PointCloud2)
 
 if __name__ == '__main__':
     listener()
