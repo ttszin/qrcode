@@ -16,14 +16,15 @@ def callback(data):
         min_distance_index = np.argmin(distances)
         closest_point = points[min_distance_index]
 
-        rospy.loginfo(f"Ponto mais próximo: {closest_point}")
-        rospy.loginfo(f"Distância do ponto mais próximo: {distances[min_distance_index]} m")
+        print(f"Ponto mais próximo: {closest_point}")
+        print(f"Distância do ponto mais próximo: {distances[min_distance_index]} m")
 
 def listener():
     rospy.init_node('point_cloud_listener', anonymous=True)
     rospy.Subscriber('/zed/point_cloud', PointCloud2, callback)
     rospy.spin()
-    print("rodou")
+    
+def 
 
 if __name__ == '__main__':
     listener()
